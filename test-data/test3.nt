@@ -1,0 +1,10 @@
+    <annoying>   <line>   "version 1" .
+# a comment line-- entirely legal
+      # so is this comment
+#so are blank lines...
+
+
+
+_:another	<foo> 			<line-of-annoyance> .
+
+<this> <is> "legal"^^<honest> .

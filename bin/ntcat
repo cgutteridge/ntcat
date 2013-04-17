@@ -1,0 +1,73 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+if( @ARGV == 0 )
+{
+	print STDERR "No filesnames specified\n";
+	print STDERR "$0 <file1> <file2> ...\n";
+	print STDERR "Safely concatinate ntriple files.\n";
+	exit 1;
+}
+
+
+my @prefixes = ("A".."Z", "a".."z" );
+
+# mode is the number of characters to use in the prefix
+my $mode = 1;
+if( @ARGV > @prefixes ) { $mode = 2; }
+
+my $fh;
+my $count = 0;
+foreach my $file ( @ARGV )
+{
+	my $prefix;
+	if( $mode == 1 )
+	{
+		$prefix = $prefixes[$count];
+	}
+	else
+	{
+		$prefix = $prefixes[int( $count/(scalar @prefixes ))].$prefixes[ $count % (scalar @prefixes)];
+	}
+	
+	# really ntriples files should be ascii, but if not 
+	# lets treat them as utf8. Linked-data people like utf8.
+	open( $fh, "<:utf8", $file ) || failMessage( 2, "Failed to read $file: $!" );
+	while( my $line = readline( $fh ) )
+	{
+		# preserve comments as-is
+		if( $line =~ m/^\s*#/ )
+		{
+			print $line;
+			next;
+		}
+
+		if( $line =~ m/^\s*$/ )
+		{
+			print $line;
+			next;
+		}
+
+		$line =~ s/^(\s+)//;
+		my( @parts ) = split( /\s+/, $line, 3 );
+		$parts[0] =~ s/^_:/_:$prefix/;
+		$parts[2] =~ s/^_:/_:$prefix/;
+		print join( " ", @parts );
+	}
+	$count ++;
+}
+exit 0;
+
+
+sub failMessage
+{
+	my( $exit_code, $message ) = @_;
+	
+	print STDERR "$message\n";
+
+	exit $exit_code;
+}
+
+

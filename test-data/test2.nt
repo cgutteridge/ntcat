@@ -1,0 +1,3 @@
+<x> <b1> _:n1 .
+<x> <b2> "hello" .
+_:n1 <b2> "Goodbye" .
